@@ -1,0 +1,46 @@
+x-llama-common: &llama-common
+  image: ghcr.io/ggml-org/llama.cpp:server-vulkan
+  pull_policy: always
+  restart: unless-stopped
+  init: true
+  ports:
+    - "127.0.0.1:8080:8080"
+  command:
+    - --models-preset
+    - /models-preset.ini
+    - --models-max
+    - "1"
+    - --port
+    - "8080"
+    - --log-verbosity
+    - "3"
+
+services:
+  llama-amd:
+    <<: *llama-common
+    profiles: ["amd"]
+    container_name: llama-server-amd
+    volumes:
+      - ./models-preset.ini:/models-preset.ini:ro
+      - ./model-cache:/model-cache
+      - ./shader-cache-amd:/shader-cache
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    environment:
+      - RADV_PERFTEST=nogttspill
+      - MESA_SHADER_CACHE_DIR=/shader-cache
+      - LLAMA_CACHE=/model-cache
+      - HF_TOKEN=${HF_TOKEN:-}
+
+  llama-nvidia:
+    <<: *llama-common
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    profiles: ["nvidia"]
+    container_name: llama-server-nvidia
+    volumes:
+      - ./models-preset.ini:/models-preset.ini:ro
+      - ./model-cache:/model-cache
+    gpus: all
+    environment:
+      - LLAMA_CACHE=/model-cache
+      - HF_TOKEN=${HF_TOKEN:-}
