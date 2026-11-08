@@ -6,7 +6,9 @@ The server runs in router mode: it serves the models defined in `models-preset.i
 
 ## Requirements
 
+- Linux with a GPU (Docker on macOS can't use the Apple Silicon GPU; run `llama-server` natively there)
 - Docker with Compose v2
+- For the default model (`Qwen3.8-27B-S`, IQ3_S, 64k context): about 16 GB of VRAM. Lower `ctx-size` or pick a smaller model for less.
 - **AMD:** Mesa RADV Vulkan drivers on the host
 - **NVIDIA:** the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)
 
